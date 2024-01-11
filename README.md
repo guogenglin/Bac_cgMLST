@@ -3,6 +3,7 @@ A tool for generate cgMLST from pan-genome analysis data
 
 # External Dependencies
 BLAST+
+
 Prodigal
 
 # Guide for users
