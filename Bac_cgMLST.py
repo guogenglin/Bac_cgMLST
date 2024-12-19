@@ -269,7 +269,7 @@ def output(output, input_name, cgMLST_list, cgMLST_type):
         file.write('\n')  
         
 def main():
-    print('If you have any questions or suggestions for cgMLST, please contact Genglin Guo, e-mail: 2019207025@njau.edu.cn')
+    print('If you have any questions or suggestions for Bac_cgMLST, please contact Genglin Guo, e-mail: 2019207025@njau.edu.cn')
     starttime = time.perf_counter()
     # Initialize
     args = get_argument().parse_args()
@@ -279,23 +279,26 @@ def main():
     cgMLST_path, cgMLST_list = separate_core(args.reference, workpath)
     # Run this pipeline for each single input genome
     for inputfile in args.input:
-        input_name = strip_suffix(inputfile)
-        print('start to typing {}'.format(input_name))
-        input_seq = parse_inputfile(inputfile)
-        input_orfs = prodigal(inputfile, input_seq)
-        inputdb, input_faa_dict = make_input_blastdb(input_orfs)
-        cgMLST_type = dict()
-        for file in pathlib.Path(cgMLST_path).iterdir():
-            blast_hits = run_blast(str(file), inputdb, args.threads)
-            best_ST = pending_result(blast_hits, input_faa_dict, file)
-            gene_name = str(file).strip().split('/')[-1]
-            cgMLST_type[gene_name] = best_ST
-        for file in pathlib.Path(workpath).iterdir():
-            if str(file).endswith(('ndb', 'nhr', 'nin', 'not', 'nsq', 'ntf', 'nto')):
-                pathlib.Path(file).unlink()
-        generate_output(args.output, cgMLST_list)
-        output(args.output, input_name, cgMLST_list, cgMLST_type)
-        print('Typing for {} is complete'.format(input_name))
+        if inputfile == 'core_genome.fasta':
+            continue
+        else:
+            input_name = strip_suffix(inputfile)
+            print('start to typing {}'.format(input_name))
+            input_seq = parse_inputfile(inputfile)
+            input_orfs = prodigal(inputfile, input_seq)
+            inputdb, input_faa_dict = make_input_blastdb(input_orfs)
+            cgMLST_type = dict()
+            for file in pathlib.Path(cgMLST_path).iterdir():
+                blast_hits = run_blast(str(file), inputdb, args.threads)
+                best_ST = pending_result(blast_hits, input_faa_dict, file)
+                gene_name = str(file).strip().split('/')[-1]
+                cgMLST_type[gene_name] = best_ST
+            for file in pathlib.Path(workpath).iterdir():
+                if str(file).endswith(('ndb', 'nhr', 'nin', 'not', 'nsq', 'ntf', 'nto')):
+                    pathlib.Path(file).unlink()
+            generate_output(args.output, cgMLST_list)
+            output(args.output, input_name, cgMLST_list, cgMLST_type)
+            print('Typing for {} is complete'.format(input_name))
     endtime = time.perf_counter() - starttime
     per_genome_time = endtime / len(args.input)
     print('{:.1f}h{:.1f}m{:.1f}s for one genome'.format(per_genome_time // 3600, per_genome_time % 3600 // 60, per_genome_time % 60))
