@@ -3,7 +3,7 @@
 Created on Wed Sep 27 10:56:01 2023
 
 @author: Genglin Guo
-@e-mail: 2019207025.njau.edu.cn
+@e-mail: 2019207025@njau.edu.cn
 """
 
 import pathlib
@@ -106,3 +106,4 @@ for name, seq in accessory_genes.items():
 core_proteome.close()
 accessory_proteome.close()
 print('{} core genes and {} accessory genes were translated to proteins'.format(str(core_prot_num), str(accessory_prot_num))) 
+
