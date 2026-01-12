@@ -3,7 +3,7 @@
 Created on Tue Nov  7 08:46:19 2023
 
 @author: Genglin Guo
-@e-mail: 2019207025.njau.edu.cn
+@e-mail: 2019207025@njau.edu.cn
 """
 
 import argparse
@@ -305,3 +305,4 @@ def main():
     print('Total time consumed : {:.1f}h{:.1f}m{:.1f}s'.format(endtime // 3600, endtime % 3600 // 60, endtime % 60))
    
 main()
+
