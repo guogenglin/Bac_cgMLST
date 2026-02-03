@@ -170,7 +170,10 @@ def pending_result(blast_hits, input_faa_dict, file):
     if best_ST:
         return best_ST
     else:
-        best_ST = add_new_allele(best_match, input_faa_dict, file)
+        if best_match:
+            best_ST = add_new_allele(best_match, input_faa_dict, file)
+        else:
+            best_ST = '0'
         return best_ST
 
 def add_new_allele(best_match, input_faa_dict, file):
@@ -305,4 +308,5 @@ def main():
     print('Total time consumed : {:.1f}h{:.1f}m{:.1f}s'.format(endtime // 3600, endtime % 3600 // 60, endtime % 60))
    
 main()
+
 
