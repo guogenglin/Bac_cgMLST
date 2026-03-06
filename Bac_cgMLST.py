@@ -160,7 +160,7 @@ def pending_result(blast_hits, input_faa_dict, file):
     for i in blast_hits:
         coverage = i.query_cov
         identity = i.pident
-        if coverage >= best_coverage and identity >= best_identity:
+        if (coverage <= 100 and coverage >= best_coverage) and identity >= best_identity:  # Python calculations can produce imprecise trailing digits, thus, the coverage will bigger than 100
             best_coverage = coverage
             best_identity = identity
             best_match = str(i.sseqid)
@@ -204,21 +204,9 @@ def run_blast(query, subject, threads):
     blast_hits = []
     command = ['blastn', '-query', query, '-db', subject, '-num_threads', str(threads), '-outfmt', 
                '6 qseqid sseqid qstart qend sstart send evalue bitscore length pident qlen qseq']
-    process = subprocess.run(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    out = process.stdout.decode()
-    for line in line_iterator(out):
-        blast_hits.append(BlastResult(line))
+    process = subprocess.run(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, text = True)
+    blast_hits = [BlastResult(line) for line in process.stdout.splitlines()]
     return blast_hits
-
-def line_iterator(line_breaks):
-    # Handle the BLAST output and remove the line breaks 
-    line = -1
-    while True:
-        nextline = line_breaks.find('\n', line + 1)
-        if nextline < 0:
-            break
-        yield line_breaks[line + 1:nextline]
-        line = nextline
 
 class BlastResult(object):
     # Handle the BLAST output
@@ -308,5 +296,6 @@ def main():
     print('Total time consumed : {:.1f}h{:.1f}m{:.1f}s'.format(endtime // 3600, endtime % 3600 // 60, endtime % 60))
    
 main()
+
 
 
