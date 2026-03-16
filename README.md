@@ -7,7 +7,7 @@ BLAST+
 Prodigal
 
 # Guide for users
-This tool could generated a personalized cgMLST result for your sequence data, at first, you should find the core-genome of your data, the author was used Roary to do the Pan-genome analyse normally.
+This tool could generated a personalized cgMLST result for your sequence data, at first, you should find the core-genome of your data, use pan-genome tool like Roary, panaroo, or PPanGGoLIN.
 
 After you finished the analyse, the core genome and the accessory genome of your sequence could be separated based on the "gene_presence_and_absence.csv"
 
