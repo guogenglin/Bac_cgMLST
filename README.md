@@ -31,7 +31,7 @@ Input and Output:
   -r, --reference         Reference core genome file or path to reference database
   -o, --output            Output file
 Parameters:
-  -m, --mode              Both core genome file and prepared database can be used as reference
+  -m, --mode              Both core genome file and prepared database can be used as reference ['core_genome', 'database'].
   -t, --threads           Threads to use for BLAST searches
   -v, --version           Show version number and exit
 ```
