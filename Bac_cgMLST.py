@@ -89,7 +89,7 @@ def separate_core(reference_cgMLST: str, workpath: pathlib.Path) -> tuple[pathli
     for key, value in reference.items():
         gene_name = ''
         if str(key).strip().split('_')[-1].isdigit():
-            gene_name = str(key).strip().split('_')[-2] + '_' + str(key).strip().split('_')[-1]
+            gene_name = str(key).strip().rsplit('_', 1)[-2] + '_' + str(key).strip().rsplit('_', 1)[-1]
         else:
             gene_name = str(key).strip().split('_')[-1]
         cglist.append(gene_name)
