@@ -366,7 +366,7 @@ def main(argv: list[str] | None = None):
         cgMLST_path = pathlib.Path(args.reference)
         cgMLST_list = [file.stem for file in pathlib.Path(args.reference).iterdir()]
     # Run this pipeline for each single input genome
-    for inputfile in tqdm(args.input, desc = 'Processing files'):
+    for inputfile in tqdm(args.input, desc = 'Processing files', unit='genome'):
         with tempfile.TemporaryDirectory() as temp_dir:
             input_file = gunzip_assembly(inputfile, temp_dir)
             input_file_obj = parse_input_assembly(input_file)
