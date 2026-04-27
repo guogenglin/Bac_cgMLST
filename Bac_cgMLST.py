@@ -180,7 +180,8 @@ class BlastResult:
 
 class Assembly:
     '''
-    Represents an assembly with multiple contigs. Provides methods to build minimap2 index and map queries.
+    Represents an assembly with multiple contigs. Provides methods to predict ORFs, create a BLAST database, 
+    and map query sequences to the assembly.
     '''
     def __init__(self, path: pathlib.Path, name: str | None = None, contigs: dict[str, Seq] | None = None):
         self.path = pathlib.Path(path).resolve()
@@ -197,9 +198,9 @@ class Assembly:
     def __len__(self) -> int:
         return sum(len(c) for c in self.contigs.values())
 
-    def prodigal(self):
+    def prodigal(self) -> list[Orf]:
         '''
-        Build a minimap2 index for the assembly and return the path to the index file.
+        Predict ORFs in the assembly and return a list of Orf objects.
         '''
         command = 'prodigal -f sco -i %s -m' % self.path
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
@@ -224,8 +225,11 @@ class Assembly:
 
         return self.orfs
     
-    def make_input_blastdb(self, temp_dir: str):
-
+    def make_input_blastdb(self, temp_dir: str) -> tuple[pathlib.Path, dict[str, str]]:
+        '''
+        Create a BLAST database from the predicted ORFs and return the database name and a dictionary of 
+        {gene_code: sequence}.
+        '''
         blastdb_name = pathlib.Path(temp_dir) / 'input_fna.fna'
         input_fna_dict = dict()
         input_fna = open(blastdb_name, 'wt')
@@ -254,7 +258,8 @@ class Assembly:
 
     def map(self, query: pathlib.Path | str | None) -> list:
         '''
-        Map a query sequence to the assembly using minimap2 and yield Alignment objects.
+        Map a query sequence to the assembly using BLAST and return a list of BlastResult objects
+        representing the hits.
         '''
         command = ['blastn', '-query', query, '-db', self.blastdb_name, '-num_threads', '1', '-outfmt', 
                 '6 qseqid sseqid qstart qend sstart send evalue bitscore length pident qlen qseq']
@@ -348,7 +353,10 @@ def output(output: pathlib.Path, input_name: str, cgMLST_list: list[str], cgMLST
         file.write('\t'.join(line))
         file.write('\n')  
 
-def process_gene(gene, cgMLST_path, input_file_obj):
+def process_gene(gene: str, cgMLST_path: pathlib.Path, input_file_obj: Assembly) -> tuple[str, str]:
+    '''
+    Process a single gene by mapping it to the input assembly and determining the allele number.
+    '''
     gene_fasta = cgMLST_path / f'{gene}.fasta'
     input_file_obj.map(gene_fasta)
     best_ST = pending_result(gene_fasta, input_file_obj)
@@ -379,7 +387,7 @@ def main(argv: list[str] | None = None):
                 allele_files = list(cgMLST_path.glob('*.fasta'))
                 gene_names = [f.stem for f in allele_files]
                 cgMLST_type = dict()
-
+                # Process each gene in parallel using multiprocessing Pool
                 with Pool(processes = args.threads) as pool:
                     results = pool.starmap(
                         process_gene,
