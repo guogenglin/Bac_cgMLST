@@ -21,7 +21,7 @@ import multiprocessing
 from Bio.Seq import Seq
 from multiprocessing import Pool
 
-__version__ = '1.2'
+__version__ = '1.2.1'
 
 def get_argument() -> argparse.ArgumentParser:
     # Parsers
@@ -175,8 +175,8 @@ class BlastResult:
             self.sstart, self.send = self.send, self.sstart
             self.strand = '-'
         self.length = int(parts[8])
-        self.pident = float(parts[9])
-        self.query_cov = 100.0 * len(parts[11]) / float(parts[10])
+        self.pident = min(float(parts[9]), 100)
+        self.query_cov = min(100.0 * len(parts[11]) / float(parts[10]), 100)
 
 class Assembly:
     '''
