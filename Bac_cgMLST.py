@@ -286,7 +286,7 @@ def parse_input_assembly(assembly: pathlib.Path) -> Assembly:
 
     return Assembly(path = assembly, name = basename, contigs = input_seq)
 
-def add_new_allele(best_match: str, gene_file: pathlib.Path, input_file_obj: Assembly) -> str:
+def add_new_allele(best_match: str, best_strand: str, gene_file: pathlib.Path, input_file_obj: Assembly) -> str:
     '''
     Add a new allele to the gene file based on the best hit and return the new allele number.
     '''
@@ -295,6 +295,9 @@ def add_new_allele(best_match: str, gene_file: pathlib.Path, input_file_obj: Ass
         last_id = int(record.id.strip().split('_')[-1]) + 1
 
     sequence = str(input_file_obj.fna[best_match])
+    if best_strand == '-':
+        sequence = str(Seq(sequence).reverse_complement())
+    
     sequence_for_write = '\n'.join(sequence[i:i+60] for i in range(0, len(sequence), 60))
 
     with open(gene_file, 'a') as f:
@@ -311,6 +314,7 @@ def pending_result(gene_file: pathlib.Path, input_file_obj: Assembly) -> str:
     best_coverage = 0.0
     best_identity = 0.0
     best_ST = ''
+    best_strand = ''
     for i in input_file_obj.blast_hits:
         coverage = i.query_cov
         identity = i.pident
@@ -319,13 +323,14 @@ def pending_result(gene_file: pathlib.Path, input_file_obj: Assembly) -> str:
             best_identity = identity
             best_match = str(i.sseqid)
             best_ST = str(i.qseqid)
+            best_strand = i.strand
     if int(best_identity) < 100:
         best_ST = ''
     if best_ST:
         return best_ST
     else:
         if best_match:
-            best_ST = add_new_allele(best_match, gene_file, input_file_obj)
+            best_ST = add_new_allele(best_match, best_strand, gene_file, input_file_obj)
         else:
             best_ST = '0'
         return best_ST
